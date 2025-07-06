@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    /* se quiser personalizar tokens, pode usar @theme aqui */
+  }
+}

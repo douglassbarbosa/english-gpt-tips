@@ -1,18 +1,34 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 
 export default function Home() {
   const [input, setInput] = useState('')
   const [response, setResponse] = useState('')
   const [loading, setLoading] = useState(false)
+  const [lastSent, setLastSent] = useState<number>(0)
+
+  const getrobotdog = useRef<HTMLInputElement>(null)
 
   const handleSend = async () => {
     if (!input.trim() || input.trim().split(' ').length > 20) {
       alert('Please enter a short sentence (max 20 words).')
       return
     }
+
+    if (getrobotdog.current?.value) {
+      alert('Bot detection triggered.')
+      return
+    }
+
+    const now = Date.now()
+    if (now - lastSent < 5000) {
+      alert('Please wait 5 seconds before sending again.')
+      return
+    }
+    setLastSent(now)
+
     setLoading(true)
     setResponse('')
 
@@ -24,7 +40,9 @@ export default function Home() {
       const data = await res.json()
       setResponse(data.response)
     } catch (error) {
-      setResponse('Something went wrong.')
+      setResponse('Hmmm sorry! Something went wrong.')
+      console.error('Error fetching response:', error)
+      return
     }
 
     setLoading(false)
@@ -40,34 +58,43 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-gray-900 p-6">
-      <div className="max-w-2xl mx-auto space-y-8">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 space-y-8">
         <section className="space-y-4">
-          <h1 className="text-3xl font-bold text-center">English GPT Tips</h1>
-          <p className="text-center text-gray-600">Enter a sentence to get informal, neutral, and formal versions.</p>
-          <div className="flex gap-2">
+          <h1 className="text-4xl font-bold text-center text-blue-700">English Tips with GPT ✨</h1>
+          <p className="text-center text-gray-500 text-lg">Enter a sentence to get informal, neutral, and formal versions.</p>
+          <div className="flex flex-col sm:flex-row gap-4">
             <input
               type="text"
-              placeholder="Type a sentence..."
+              placeholder="Type your sentence here..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="flex-1 border border-gray-300 rounded px-4 py-2"
+              className="flex-1 border border-gray-300 rounded px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              ref={getrobotdog}
+              type="text"
+              className="hidden"
+              tabIndex={-1}
+              aria-hidden="true"
+              autoComplete="off"
             />
             <button
               onClick={handleSend}
               disabled={loading}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
             >
               {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Send'}
             </button>
           </div>
+
         </section>
 
         {response && (
-          <section className="bg-gray-50 border border-gray-200 rounded p-4 space-y-2">
-            <h2 className="font-semibold text-lg">📝 Correção gramatical</h2>
+          <section className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-4">
+            <h2 className="font-semibold text-2xl text-blue-700 flex items-center gap-2">📝 Native Phrases</h2>
             {parseResponse(response).map((line, idx) => (
-              <div key={idx} className="border-l-4 border-blue-500 pl-4">
+              <div key={idx} className="border-l-4 border-blue-500 pl-4 text-base">
                 <p><strong>{line.split(':')[0]}:</strong> {line.split(':').slice(1).join(':').trim()}</p>
               </div>
             ))}
