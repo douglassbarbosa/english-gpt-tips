@@ -4,7 +4,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const message = body.message
 
-  console.log('📝 Usuário perguntou:', message)
+  console.log('📝 Questions of user:', message)
 
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   const data = await res.json()
 
-  console.log('🔁 Resposta do GPT:', JSON.stringify(data, null, 2))
+  console.log('🔁 GPT Answers:', JSON.stringify(data, null, 2))
 
   return NextResponse.json({
     response: data.choices?.[0]?.message?.content || '⚠️ No answer.',

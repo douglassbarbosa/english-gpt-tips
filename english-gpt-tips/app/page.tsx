@@ -61,8 +61,15 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 space-y-8">
         <section className="space-y-4">
-          <h1 className="text-4xl font-bold text-center text-blue-700">English Tips with GPT ✨</h1>
-          <p className="text-center text-gray-500 text-lg">Enter a sentence to get informal, neutral, and formal versions.</p>
+          <h1 className="flex items-center justify-center text-4xl font-bold text-blue-700">ThreeTone English ✨ </h1>
+          <div className="relative group inline-block">
+            <p className="text-center text-gray-500 text-lg">Type a sentence and master English in Informal, Neutral, and Formal tones.</p>
+            {/* <span tabIndex={0} className="text-red-500 hover:text-blue-600 cursor-pointer">?</span>
+
+            <span className="absolute bottom-full mb-2 hidden group-hover:inline-block group-focus:inline-block bg-black text-white text-sm rounded py-1 px-2 whitespace-nowrap">
+              Enter one sentence to get 3 styles. You can use it for translating too.
+            </span> */}
+          </div>
           <div className="flex flex-col sm:flex-row gap-4">
             <input
               type="text"
