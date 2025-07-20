@@ -55,8 +55,15 @@ export default function Home() {
       const line = lines.find((l) => l.toLowerCase().startsWith(label.toLowerCase()))
       return line ? `${label}: ${line.split(':').slice(1).join(':').trim()}` : `${label}: ...`
     })
+    const allPresent = results.every((res) => res !== null)
+    if (!allPresent) {
+      return [
+        "⚠️ I couldn't understand your sentence. Try something like:",
+        "💬 Can you help me with this?",
+      ]
+    }
+    return results as string[]
   }
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 space-y-8">
@@ -70,7 +77,12 @@ export default function Home() {
               Enter one sentence to get 3 styles. You can use it for translating too.
             </span> */}
           </div>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <form
+            className="flex flex-col sm:flex-row gap-4"
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleSend()
+            }}>
             <input
               type="text"
               placeholder="Type your sentence here..."
@@ -87,16 +99,14 @@ export default function Home() {
               autoComplete="off"
             />
             <button
-              onClick={handleSend}
+              type="submit"
               disabled={loading}
               className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
             >
               {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Send'}
             </button>
-          </div>
-
+          </form>
         </section>
-
         {response && (
           <section className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-4">
             <h2 className="font-semibold text-2xl text-blue-700 flex items-center gap-2">📝 Native Phrases</h2>
