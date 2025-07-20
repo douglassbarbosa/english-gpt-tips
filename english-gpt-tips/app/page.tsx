@@ -47,23 +47,26 @@ export default function Home() {
 
     setLoading(false)
   }
-
   const parseResponse = (text: string) => {
     const lines = text.split('\n').filter(Boolean)
     const labels = ['Informal', 'Neutral', 'Formal']
-    return labels.map((label) => {
+    const results = labels.map((label) => {
       const line = lines.find((l) => l.toLowerCase().startsWith(label.toLowerCase()))
-      return line ? `${label}: ${line.split(':').slice(1).join(':').trim()}` : `${label}: ...`
+      return line ? `${label}: ${line.split(':').slice(1).join(':').trim()}` : null
     })
+  
     const allPresent = results.every((res) => res !== null)
+  
     if (!allPresent) {
       return [
         "⚠️ I couldn't understand your sentence. Try something like:",
         "💬 Can you help me with this?",
       ]
     }
+  
     return results as string[]
   }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 space-y-8">
