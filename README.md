@@ -1,5 +1,9 @@
 # 🧠 English GPT Tips
 
+![Version](https://img.shields.io/badge/version-0.1.0--beta-orange.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D20-green.svg)
+![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
+
 A lightweight chatbot powered by OpenAI's GPT-4.1-mini that gives **short and direct English learning tips**.
 
 This app is focused on a single purpose: help users ask **simple questions about English** and receive **brief, useful answers**.
@@ -17,7 +21,15 @@ This app is focused on a single purpose: help users ask **simple questions about
 
 ## 📸 Demo
 
-![Screenshot](#)
+![Screenshot](ThreeToneEnglish.png)
+
+---
+
+## 📋 Requirements
+
+- Node.js & npm (tested with **Node 20 / npm 10**)  
+- An **OpenAI API key** (GPT access required)  
+- Git installed locally  
 
 ---
 
@@ -53,6 +65,6 @@ CHAT_SYSTEM_PROMPT=Please correct the following English sentence and return thre
 npm run dev
 ```
 
-| Visit http://localhost:3000 in your browser.
+| Visit http://localhost:3000 (3000 is a default port) in your browser.
 
 DouglasBarbosa @ 2025
