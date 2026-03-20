@@ -6,13 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "lucide-react": "^0.525.0",
-    "next": "^15.5.7",
-    "react": "^19.1.2",
-    "react-dom": "^19.1.2"
+    "next": "15.5.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -23,19 +24,20 @@
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
-    "eslint-config-next": "15.3.5",
+    "eslint-config-next": "15.5.7",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "license": "MIT",
-  "description": "A Next.js app with Tailwind CSS and ESLint configured.",
+  "description": "ThreeTone English rewrites one sentence in informal, neutral, and formal English.",
   "keywords": [
+    "english-learning",
+    "tone-rewriter",
     "nextjs",
-    "tailwindcss",
-    "eslint"
+    "openai"
   ]
 }
