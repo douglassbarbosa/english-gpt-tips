@@ -1,31 +1,84 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
+const MODEL_NAME = 'gpt-4.1-mini'
+
+type OpenAIChatCompletionResponse = {
+  error?: {
+    message?: string
+  }
+  choices?: Array<{
+    message?: {
+      content?: string
+    }
+  }>
+}
+
+function jsonResponse(body: Record<string, string>, status: number) {
+  return NextResponse.json(body, { status })
+}
+
 export async function POST(req: NextRequest) {
-  const body = await req.json()
-  const message = body.message
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('Missing OPENAI_API_KEY environment variable.')
+    return jsonResponse({ error: 'Server misconfiguration. Missing API key.' }, 500)
+  }
 
-  console.log('📝 Questions of user:', message)
+  const systemPrompt = process.env.CHAT_SYSTEM_PROMPT?.trim()
 
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4.1-mini',
-      messages: [
-        { role: 'system', content: process.env.CHAT_SYSTEM_PROMPT || '' },
-        { role: 'user', content: message },
-      ],
-    }),
-  })
+  if (!systemPrompt) {
+    console.error('Missing CHAT_SYSTEM_PROMPT environment variable.')
+    return jsonResponse({ error: 'Server misconfiguration. Missing system prompt.' }, 500)
+  }
 
-  const data = await res.json()
+  let body: { message?: unknown }
 
-  console.log('🔁 GPT Answers:', JSON.stringify(data, null, 2))
+  try {
+    body = await req.json()
+  } catch {
+    return jsonResponse({ error: 'Invalid JSON body.' }, 400)
+  }
 
-  return NextResponse.json({
-    response: data.choices?.[0]?.message?.content || '⚠️ No answer.',
-  })
+  const message = typeof body.message === 'string' ? body.message.trim() : ''
+
+  if (!message) {
+    return jsonResponse({ error: 'Message is required.' }, 400)
+  }
+
+  try {
+    const res = await fetch(OPENAI_API_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: MODEL_NAME,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message },
+        ],
+      }),
+    })
+
+    const data = (await res.json()) as OpenAIChatCompletionResponse
+
+    if (!res.ok) {
+      const providerMessage = data.error?.message ?? 'Upstream provider request failed.'
+      console.error('OpenAI request failed with status %s.', res.status)
+      return jsonResponse({ error: providerMessage }, res.status)
+    }
+
+    const response = data.choices?.[0]?.message?.content?.trim()
+
+    if (!response) {
+      console.error('OpenAI response did not include message content.')
+      return jsonResponse({ error: 'No answer returned by the AI service.' }, 502)
+    }
+
+    return NextResponse.json({ response })
+  } catch (error) {
+    console.error('Unexpected chat route error.', error)
+    return jsonResponse({ error: 'Unable to reach the AI service right now.' }, 502)
+  }
 }
