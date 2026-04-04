@@ -1,88 +1,63 @@
-# English GPT Tips (Technical Docs)
+# English GPT Tips
 
 **Version:** 0.1.0 (Beta)  
-Status: First public release, under testing and feedback.
+**Product:** ThreeTone English
 
----
+ThreeTone English is a small Next.js app that rewrites one sentence into three English tones: **Informal**, **Neutral**, and **Formal**.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Project structure
+
+This repository keeps the runnable Next.js app inside the `english-gpt-tips/` directory. Run all Node.js commands from that folder.
 
 ## Requirements
 
-- Node.js >= 20 (tested with v20.x)
-- npm >= 10
-- An OpenAI API key (required for local development)
-- Git (for cloning the repository)
+- Node.js 20 or newer
+- npm 10 or newer
+- An OpenAI API key
 
+## Environment setup
 
-
-## Environment Setup
-
-Copy `.env.example` to `.env.local` and add your keys:
+Copy `.env.example` to `.env.local` and update the values:
 
 ```bash
 cp .env.example .env.local
-``` 
+```
 
 Example:
 
 ```env
 OPENAI_API_KEY=your-openai-api-key
-CHAT_SYSTEM_PROMPT=Please correct the following English sentence and return three natural versions...
+CHAT_SYSTEM_PROMPT=Please correct the following English sentence and return three natural versions: one informal, one neutral (everyday), and one formal. Keep the original meaning.
 ```
 
-
-
-## Getting Started
-
-First, run the development server:
+## Getting started
 
 ```bash
+cd english-gpt-tips
+npm install
+npm run lint
+npm run typecheck
+npm run build
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open [http://localhost:3000](http://localhost:3000).
+
+## Current release focus
+
+This beta release is optimized for:
+- short single-sentence rewrites,
+- simple three-tone output,
+- local development and Vercel-style deployment.
+
+## Recommended next steps
+
+- Add automated tests for the API route and response parser.
+- Move the model response to a structured JSON format.
+- Add rate limiting and basic analytics before a wider public launch.
 
 
-## Deploy on Vercel
+## Troubleshooting
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Learn Next.js](https://nextjs.org/learn) - interactive tutorial
-- [Learn Next.js](https://nextjs.org/learn)
-
-
-## Versioning
-
-Current version: **0.1.0 (Beta)**  
-This is the first public release, under testing and feedback. Expect breaking changes before 1.0.0.
-
-## Contributing
-
-Feedback and contributions are welcome!  
-Please open an issue or submit a pull request on GitHub.
-
-
-### 👉 Commit suggestion for this refinement:
-
-```bash
-docs(readme): add requirements, env setup, and versioning notes to technical README
-```
-
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
+- If you see `A listener indicated an asynchronous response...` in the browser console, that usually comes from a browser extension, not this app. Try an Incognito window with extensions disabled.
+- If answers are delayed, the server now retries transient provider errors automatically, but verify your `OPENAI_API_KEY` and network/proxy configuration as well.
