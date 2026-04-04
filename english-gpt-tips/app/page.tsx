@@ -4,8 +4,7 @@ import { useRef, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 
 const MAX_WORDS = 20
-const COOLDOWN_MS = 1000
-const MAX_CLIENT_ATTEMPTS = 2
+const COOLDOWN_MS = 5000
 
 type ChatSuccess = {
   response: string
@@ -13,10 +12,6 @@ type ChatSuccess = {
 
 type ChatError = {
   error?: string
-}
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export default function Home() {
@@ -27,45 +22,6 @@ export default function Home() {
   const [lastSent, setLastSent] = useState<number>(0)
 
   const honeypotRef = useRef<HTMLInputElement>(null)
-
-  const requestAnswer = async (trimmedInput: string) => {
-    for (let attempt = 1; attempt <= MAX_CLIENT_ATTEMPTS; attempt += 1) {
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ message: trimmedInput }),
-        })
-
-        const data = (await res.json()) as ChatSuccess & ChatError
-
-        if (!res.ok) {
-          const retryable = [429, 500, 502, 503, 504].includes(res.status)
-
-          if (retryable && attempt < MAX_CLIENT_ATTEMPTS) {
-            await delay(400 * attempt)
-            continue
-          }
-
-          setError(data.error ?? 'Sorry, something went wrong while generating your answer.')
-          return
-        }
-
-        setResponse(data.response)
-        return
-      } catch (fetchError) {
-        if (attempt < MAX_CLIENT_ATTEMPTS) {
-          await delay(400 * attempt)
-          continue
-        }
-
-        console.error('Error fetching response:', fetchError)
-        setError('Connection issue while contacting the server. Please try again.')
-      }
-    }
-  }
 
   const handleSend = async () => {
     const trimmedInput = input.trim()
@@ -85,7 +41,7 @@ export default function Home() {
 
     const now = Date.now()
     if (now - lastSent < COOLDOWN_MS) {
-      setError(`Please wait ${COOLDOWN_MS / 1000} second before sending again.`)
+      setError(`Please wait ${COOLDOWN_MS / 1000} seconds before sending again.`)
       setResponse('')
       return
     }
@@ -96,7 +52,25 @@ export default function Home() {
     setResponse('')
 
     try {
-      await requestAnswer(trimmedInput)
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: trimmedInput }),
+      })
+
+      const data = (await res.json()) as ChatSuccess & ChatError
+
+      if (!res.ok) {
+        setError(data.error ?? 'Sorry, something went wrong while generating your answer.')
+        return
+      }
+
+      setResponse(data.response)
+    } catch (fetchError) {
+      console.error('Error fetching response:', fetchError)
+      setError('Sorry, something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }

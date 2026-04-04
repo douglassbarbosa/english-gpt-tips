@@ -56,6 +56,10 @@ This beta release is optimized for:
 - Move the model response to a structured JSON format.
 - Add rate limiting and basic analytics before a wider public launch.
 
+This beta release is optimized for:
+- short single-sentence rewrites,
+- simple three-tone output,
+- local development and Vercel-style deployment.
 
 ## Troubleshooting
 
