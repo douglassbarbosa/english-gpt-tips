@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 const MODEL_NAME = 'gpt-4.1-mini'
+const REQUEST_TIMEOUT_MS = 20000
+const MAX_OPENAI_ATTEMPTS = 3
 
 type OpenAIChatCompletionResponse = {
   error?: {

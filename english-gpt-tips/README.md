@@ -55,3 +55,13 @@ This beta release is optimized for:
 - Add automated tests for the API route and response parser.
 - Move the model response to a structured JSON format.
 - Add rate limiting and basic analytics before a wider public launch.
+
+This beta release is optimized for:
+- short single-sentence rewrites,
+- simple three-tone output,
+- local development and Vercel-style deployment.
+
+## Troubleshooting
+
+- If you see `A listener indicated an asynchronous response...` in the browser console, that usually comes from a browser extension, not this app. Try an Incognito window with extensions disabled.
+- If answers are delayed, the server now retries transient provider errors automatically, but verify your `OPENAI_API_KEY` and network/proxy configuration as well.
