@@ -63,7 +63,7 @@ export default function Home() {
       const data = (await res.json()) as ChatSuccess & ChatError
 
       if (!res.ok) {
-        setError(data.error ?? 'Sorry, something went wrong while generating your answer.')
+        setError(data.error ?? 'Sorry, something went wrong while generating your answer. Please try again.')
         return
       }
 
