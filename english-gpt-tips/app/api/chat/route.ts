@@ -1,23 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
-const MODEL_NAME = 'gpt-4.1-mini'
+const OPENAI_API_URL = 'https://api.openai.com/v1/responses'
+const MODEL_NAME = 
+  process.env.OPENAI_MODEL?.trim() || "gpt-4.1-mini";
+
 const REQUEST_TIMEOUT_MS = 20000
 const MAX_OPENAI_ATTEMPTS = 3
 
-type OpenAIChatCompletionResponse = {
+type OpenAIResponseContent = {
+  type?: string
+  text?: string
+}
+
+type OpenAIResponseOutput = {
+  type?: string
+  content?: OpenAIResponseContent[]
+}
+
+type OpenAIResponsesApiResponse = {
   error?: {
     message?: string
   }
-  choices?: Array<{
-    message?: {
-      content?: string
-    }
-  }>
+  output?: OpenAIResponseOutput[]
 }
 
 function jsonResponse(body: Record<string, string>, status: number) {
   return NextResponse.json(body, { status })
+}
+
+function extractResponseText(data: OpenAIResponsesApiResponse): string {
+  for (const outputItem of data.output ?? []) {
+    for (const contentItem of outputItem.content ?? []) {
+      if (
+        contentItem.type === 'output_text' &&
+        typeof contentItem.text === 'string'
+      ) {
+        return contentItem.text.trim()
+      }
+    }
+  }
+
+  return ''
 }
 
 export async function POST(req: NextRequest) {
@@ -54,16 +77,18 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: MODEL_NAME,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message },
-        ],
-      }),
+      body: JSON.stringify(
+        {
+          model: MODEL_NAME,
+          instructions: systemPrompt,
+          input: message,
+          max_output_tokens: 220,
+          store: false,
+        }
+      ),
     })
 
-    const data = (await res.json()) as OpenAIChatCompletionResponse
+  const data = (await res.json()) as OpenAIResponsesApiResponse
 
     if (!res.ok) {
       const providerMessage = data.error?.message ?? 'Upstream provider request failed.'
@@ -71,16 +96,18 @@ export async function POST(req: NextRequest) {
       return jsonResponse({ error: providerMessage }, res.status)
     }
 
-    const response = data.choices?.[0]?.message?.content?.trim()
+    const response = extractResponseText(data)
 
     if (!response) {
-      console.error('OpenAI response did not include message content.')
+      console.error('OpenAI response did not include output text.') 
       return jsonResponse({ error: 'No answer returned by the AI service.' }, 502)
     }
 
     return NextResponse.json({ response })
   } catch (error) {
     console.error('Unexpected chat route error.', error)
-    return jsonResponse({ error: 'Unable to reach the AI service right now.' }, 502)
+    return jsonResponse({ error: 'Unable to reach the AI service right now.' }, 
+      502
+    )
   }
 }
